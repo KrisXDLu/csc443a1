@@ -1,4 +1,4 @@
-#include "library.h"
+
 #include <iostream>
 #include <string.h>
 #include <fstream>
@@ -7,6 +7,7 @@
 #include <cstring>
 #include <stdlib.h>
 #include <sys/timeb.h>
+#include "library.h"
 
 int main(int argc, char*argv[]) {
 	if (argc != 4) {
