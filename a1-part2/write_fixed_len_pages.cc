@@ -10,7 +10,7 @@
 
 int main(int argc, char*argv[]) {
 	if (argc != 4) {
-        std::cout << "Usage: ./write_fixed_len_pages";
+        std::cout << "Usage: " << argv[0];
         std::cout << " <csv_file> <page_file> <page_size>" << std::endl;
         return 0;
     }

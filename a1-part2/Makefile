@@ -7,3 +7,5 @@ library.o: library.cc library.h
 
 write_fixed_len_pages: write_fixed_len_pages.cc library.o
 	$(CC) -o $@ $< library.o
+
+
