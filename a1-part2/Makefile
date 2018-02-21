@@ -1,6 +1,6 @@
 CC = g++
 
-all: write_fixed_len_pages 
+all: write_fixed_len_pages  read_fixed_len_pages
 
 library.o: library.cc library.h
 	$(CC) -o $@ -c $<
@@ -8,4 +8,6 @@ library.o: library.cc library.h
 write_fixed_len_pages: write_fixed_len_pages.cc library.o
 	$(CC) -o $@ $< library.o
 
+read_fixed_len_pages: read_fixed_len_pages.cc library.o
+	$(CC) -o $@ $< library.o
 
