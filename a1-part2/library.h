@@ -1,17 +1,11 @@
 #include <vector>
-#include <iostream>
-#include <string.h>
-#include <fstream>
-#include <cstdlib>
-#include <sstream>
-#include <cstring>
-#include <stdlib.h>
-#include <sys/timeb.h>
+
 
 typedef const char* V;
 typedef std::vector<V> Record;
-const int TEMP_SIZE = 10;
-const int REC_SIZE = 100;
+const int V_SIZE = 10;
+const int RECORD_SIZE = 100;
+const int SUBSTRING_LENGTH = 5;
 
 /**
  * Compute the number of bytes required to serialize record
@@ -113,5 +107,8 @@ class RecordIterator {
     RecordIterator(Heapfile *heapfile);
     Record next();
     bool hasNext();
+    Heapfile *heap_file;
+    RecordID record_id;
+    Page page;
 };
 

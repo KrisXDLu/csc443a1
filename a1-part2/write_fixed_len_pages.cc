@@ -1,4 +1,12 @@
 #include "library.h"
+#include <iostream>
+#include <string.h>
+#include <fstream>
+#include <cstdlib>
+#include <sstream>
+#include <cstring>
+#include <stdlib.h>
+#include <sys/timeb.h>
 
 int main(int argc, char*argv[]) {
 	if (argc != 4) {
@@ -21,7 +29,7 @@ int main(int argc, char*argv[]) {
 
     unsigned long time1 = time.time*1000 + time.millitm;
     
-    init_fixed_len_page(page, page_size, REC_SIZE * TEMP_SIZE);
+    init_fixed_len_page(page, page_size, RECORD_SIZE * V_SIZE);
 
     if (csv_file.is_open()) {
     	while (getline(csv_file, line)) {
@@ -32,9 +40,9 @@ int main(int argc, char*argv[]) {
 
     		// get all field
     		while (getline(sline, field, ',')) {
-    			v = (char*) calloc(TEMP_SIZE + 1, 1);
-    			std::strncpy(v, attribute.c_str(), TEMP_SIZE);
-    			v[TEMP_SIZE] = '\0';
+    			v = (char*) calloc(V_SIZE + 1, 1);
+    			std::strncpy(v, field.c_str(), V_SIZE);
+    			v[V_SIZE] = '\0';
     			record->push_back((V) v);
     		}
 
@@ -42,28 +50,28 @@ int main(int argc, char*argv[]) {
     			//page not full
     			add_fixed_len_page(page, record);
     		} else {
-    			page_file->write((const char *) &(page->page_size), sizeof(int));
-    			page_file->write((const char *) &(page->slot_size), sizeof(int));
-    			page_file->write((const char *) page->data, page->page_size);
+    			page_file.write((const char *) &(page->page_size), sizeof(int));
+    			page_file.write((const char *) &(page->slot_size), sizeof(int));
+    			page_file.write((const char *) page->data, page->page_size);
     			++page_num;
-    			printf("%d %d\n", page->slot_size, TEMP_SIZE*REC_SIZE);
+    			printf("%d %d\n", page->slot_size, V_SIZE*RECORD_SIZE);
     			init_fixed_len_page(page, page->page_size, page->slot_size);
-    			add_fixed_len_page(page, record)
+    			add_fixed_len_page(page, record);
     		}
     		++rec_num;
     	}
-    	page_file->write((const char *) &(page->page_size), sizeof(int));
-    	page_file->write((const char *) &(page->slot_size), sizeof(int));
-    	page_file->write((const char *) page->data, page->page_size);
+    	page_file.write((const char *) &(page->page_size), sizeof(int));
+    	page_file.write((const char *) &(page->slot_size), sizeof(int));
+    	page_file.write((const char *) page->data, page->page_size);
     	++page_num;
     	ftime(&time);
     	unsigned long time2 = time.time*1000 + time.millitm;
     	page_file.close();
     	csv_file.close();
     
-    	std::cout << "number of records: " << num_records << std::endl;
-        std::cout << "number of pages: " << num_pages << std::endl;
-        std::cout << "time: " << stop_time - start_time << " milliseconds\n";
+    	std::cout << "number of records: " << rec_num << std::endl;
+        std::cout << "number of pages: " << page_num << std::endl;
+        std::cout << "time: " << time2 - time1 << " milliseconds\n";
 
     } else {
         std::cout << "CSV file open failed" << std::endl;;
