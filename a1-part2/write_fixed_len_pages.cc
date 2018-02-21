@@ -19,7 +19,7 @@ int main(int argc, char*argv[]) {
     int page_size = atoi(argv[3]);
 
     std::string line;
-    Page* page;
+    Page page;
 
     int rec_num = 0;
     int page_num = 0;
@@ -29,11 +29,11 @@ int main(int argc, char*argv[]) {
 
     unsigned long time1 = time.time*1000 + time.millitm;
     
-    init_fixed_len_page(page, page_size, RECORD_SIZE * V_SIZE);
+    init_fixed_len_page(&page, page_size, RECORD_SIZE * V_SIZE);
 
     if (csv_file.is_open()) {
     	while (getline(csv_file, line)) {
-    		Record* record;
+    		Record record;
     		std::string field;
     		std::stringstream sline(line);
     		char *v;
@@ -43,26 +43,26 @@ int main(int argc, char*argv[]) {
     			v = (char*) calloc(V_SIZE + 1, 1);
     			std::strncpy(v, field.c_str(), V_SIZE);
     			v[V_SIZE] = '\0';
-    			record->push_back((V) v);
+    			record.push_back((V) v);
     		}
 
-    		if (fixed_len_page_freeslots(page) > 0) {
+    		if (fixed_len_page_freeslots(&page) > 0) {
     			//page not full
-    			add_fixed_len_page(page, record);
+    			add_fixed_len_page(&page, &record);
     		} else {
-    			page_file.write((const char *) &(page->page_size), sizeof(int));
-    			page_file.write((const char *) &(page->slot_size), sizeof(int));
-    			page_file.write((const char *) page->data, page->page_size);
+    			page_file.write((const char *) &(page.page_size), sizeof(int));
+    			page_file.write((const char *) &(page.slot_size), sizeof(int));
+    			page_file.write((const char *) page.data, page.page_size);
     			++page_num;
-    			printf("%d %d\n", page->slot_size, V_SIZE*RECORD_SIZE);
-    			init_fixed_len_page(page, page->page_size, page->slot_size);
-    			add_fixed_len_page(page, record);
+    			printf("%d %d\n", page.slot_size, V_SIZE*RECORD_SIZE);
+    			init_fixed_len_page(&page, page.page_size, page.slot_size);
+    			add_fixed_len_page(&page, &record);
     		}
     		++rec_num;
     	}
-    	page_file.write((const char *) &(page->page_size), sizeof(int));
-    	page_file.write((const char *) &(page->slot_size), sizeof(int));
-    	page_file.write((const char *) page->data, page->page_size);
+    	page_file.write((const char *) &(page.page_size), sizeof(int));
+    	page_file.write((const char *) &(page.slot_size), sizeof(int));
+    	page_file.write((const char *) page.data, page.page_size);
     	++page_num;
     	ftime(&time);
     	unsigned long time2 = time.time*1000 + time.millitm;
