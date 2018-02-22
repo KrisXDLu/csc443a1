@@ -17,8 +17,7 @@ int main(int argc, char *argv[]){
 
     FILE *file_ptr = fopen(argv[1], "r+");
     std::ifstream csv_file(argv[2]);
-    int page_size = atoi(argv[2]);
-
+        
     // I/O errors
     if (file_ptr == NULL) {
         std::cout << "Error opening heapfile" << std::endl;
@@ -27,6 +26,8 @@ int main(int argc, char *argv[]){
         std::cout << "Unable to open CSV file" << std::endl;
         return -1;
     }
+
+    int page_size = atoi(argv[2]);
 
     std::string line;
     Page page;

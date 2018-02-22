@@ -20,19 +20,22 @@ int main(int argc, char *argv[]){
     // argv argument
     FILE *heapfile; 
     heapfile = fopen(argv[1], "r+");
-    int page_id = atoi(argv[2]);
-    int slot = atoi(argv[3]);
-    int page_size = atoi(argv[4]);
-
-    Page page;
 
     // I/O errors
     if (heapfile == NULL) {
         return -1;
     }
 
-    // Read page
+    int page_id = atoi(argv[2]);
+    int slot = atoi(argv[3]);
+    int page_size = atoi(argv[4]);
+
     fseek(heapfile, page_size * page_id, SEEK_SET);
+
+    Page page;
+
+
+    // Read page
     init_fixed_len_page(&page, page_size, RECORD_SIZE * V_SIZE);
     
     if (fread(page.data, page_size, 1, heapfile) == 0){

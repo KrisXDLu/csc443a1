@@ -16,13 +16,13 @@ int main(int argc, char *argv[]){
     }
 
     FILE *heapfile = fopen(argv[1], "r");
-    int page_size = atoi(argv[2]);
-
     // I/O errors
     if (heapfile == NULL) {
         std::cout << "Unable to open the heapfile\n";
         return -1;
     }
+    
+    int page_size = atoi(argv[2]);
 
     Page page;
     unsigned int j;

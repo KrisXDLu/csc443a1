@@ -19,22 +19,25 @@ int main(int argc, char *argv[]){
     // argv arguments
     FILE *heapfile; 
     heapfile = fopen(argv[1], "r+");
-    int page_id = atoi(argv[2]);
-    int slot = atoi(argv[3]);
-    int attribute_id = atoi(argv[4]);
-    char *new_value = argv[5];
-    int page_size = atoi(argv[6]);
-
-    Page page;
-    Record record;
 
     // I/O errors
     if (heapfile == NULL) {
         return -1;
     }
 
-    // Read page
+    int page_id = atoi(argv[2]);
+    int slot = atoi(argv[3]);
+    int attribute_id = atoi(argv[4]);
+    char *new_value = argv[5];
+    int page_size = atoi(argv[6]);
+
     fseek(heapfile, page_size * page_id, SEEK_SET); 
+    
+    Page page;
+    Record record;
+
+
+    // Read page
     init_fixed_len_page(&page, page_size, RECORD_SIZE * V_SIZE); 
 
     if (strlen(new_value) != V_SIZE) {
