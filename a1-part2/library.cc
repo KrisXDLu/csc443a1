@@ -138,74 +138,49 @@ void read_fixed_len_page(Page *page, int slot, Record *r) {
 }
 
 
-// /**
-//  * Initalize a heapfile to use the file and page size given.
-//  */
-// void init_heapfile(Heapfile *heapfile, int page_size, FILE *file) {
-
-// }
-
-// *
-//  * Allocate another page in the heapfile.  This grows the file by a page.
- 
-// PageID alloc_page(Heapfile *heapfile);
-
-// /**
-//  * Read a page into memory
-//  */
-// void read_page(Heapfile *heapfile, PageID pid, Page *page);
-
-// /**
-//  * Write a page from memory to disk
-//  */
-// void write_page(Page *page, Heapfile *heapfile, PageID pid);
-void init_heapfile(Heapfile *heapfile, int page_size, FILE *file){
+/**
+ * Initalize a heapfile to use the file and page size given.
+ */
+void init_heapfile(Heapfile *heapfile, int page_size, FILE *file) {
+	heapfile->file_ptr = file;
     heapfile->page_size = page_size;
-    heapfile->file_ptr = file;
 }
 
+/**
+ * Allocate another page in the heapfile.  This grows the file by a page.
+ */
+PageID alloc_page(Heapfile *heapfile) {
+	void * empty = calloc(heapfile->page_size, 1);
+	PageID id = 0;
 
-PageID alloc_page(Heapfile *heapfile){
-    void *empty_page = calloc(heapfile->page_size, 1);
+	fseek(heapfile->file_ptr, 0, SEEK_SET);
 
-    PageID offset = 0;
-
-    fseek(heapfile->file_ptr, 0, SEEK_SET);
-
-    // Find the offset to the end of the file
-    while (fgetc(heapfile->file_ptr) != EOF) {
-        fseek(heapfile->file_ptr, heapfile->page_size, SEEK_CUR);
-        // offset += heapfile->page_size;
-        offset += 1;
-    }
-
-    fwrite(empty_page, heapfile->page_size, 1, heapfile->file_ptr);
-    free(empty_page);
-    return (PageID) offset; 
+	while (fgetc(heapfile->file_ptr) != EOF) {
+		fseek(heapfile->file_ptr, heapfile->page_size, SEEK_CUR);
+		id++;
+	}
+	fwrite(empty, heapfile->page_size, 1, heapfile->file_ptr);
+	free(empty);
+	return (PageID) id;
 }
 
-
-void read_page(Heapfile *heapfile, PageID pid, Page *page){
-    // Set to the page with pid
-    int offset = heapfile->page_size * pid;
-
-    fseek(heapfile->file_ptr, offset, SEEK_SET);
-
-    // Read data from heap file to page
-    fread(page->data, heapfile->page_size, 1, heapfile->file_ptr);
+/**
+ * Read a page into memory
+ */
+void read_page(Heapfile *heapfile, PageID pid, Page *page) {
+	int offset = heapfile->page_size * pid;
+	fseek(heapfile->file_ptr, offset, SEEK_SET);
+	fread(page->data, heapfile->page_size, 1, heapfile->file_ptr);
 }
 
-
-void write_page(Page *page, Heapfile *heapfile, PageID pid){
-
-    // Set to the page with pid
-    int offset = heapfile->page_size * pid;
-    fseek(heapfile->file_ptr, offset, SEEK_SET);
-
-    // Write data from page to heap file
-    fwrite(page->data, heapfile->page_size, 1, heapfile->file_ptr);
+/**
+ * Write a page from memory to disk
+ */
+void write_page(Page *page, Heapfile *heapfile, PageID pid) {
+	int offset = heapfile->page_size * pid;
+	fseek(heapfile->file_ptr, offset, SEEK_SET);
+	fwrite(page->data, heapfile->page_size, 1, heapfile->file_ptr);
 }
-
 
 RecordIterator::RecordIterator(Heapfile *heapfile){
     heap_file = heapfile;
@@ -219,7 +194,6 @@ RecordIterator::RecordIterator(Heapfile *heapfile){
 Record RecordIterator::next() {
     Record record;
     read_fixed_len_page(&page, record_id.slot++, &record);
-    // ++record_id.slot;
     return record;
 }
 
@@ -228,8 +202,9 @@ bool RecordIterator::hasNext() {
     int freespace = fixed_len_page_freeslots(&page);
     int capacity = fixed_len_page_capacity(&page);
 
-    // check if we have already scan the entire page, if yes go load a new page, else keep reading from this page
+    // check if we have already scan the entire page
     if (capacity - record_id.slot == freespace){
+    	//haven't scaned the page
 
         // check if offset would exceed file boundary
         ++record_id.page_id;
